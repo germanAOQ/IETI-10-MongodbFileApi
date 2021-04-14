@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import axios from 'axios';
+import "./NewTask.css";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
@@ -14,7 +16,6 @@ import { useHistory } from "react-router-dom";
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import Button from "@material-ui/core/Button";
 
-
 const useStyles = makeStyles((theme) => ({
   button: {
     display: "block",
@@ -24,6 +25,7 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(3),
     minWidth: 120,
   },
+  
 }));
 
 const lista = [];
@@ -35,6 +37,7 @@ function NewTask() {
   const [status, setStatus] = React.useState("");
   const [fecha, setFecha] = React.useState("");
   const [open, setOpen] = React.useState(false);
+  const [file, setFile] = React.useState(0);
   
   const [elementos, setElementos] = React.useState([]);
 	
@@ -62,6 +65,25 @@ function NewTask() {
 
   function handleDateChange(e) {
     setFecha(e.target.value);
+  }
+  function handleInputChange(e) {
+	  setFile(e.target.files[0]);
+  }
+
+  function handleSubmit() {
+    alert('A name was submitted');
+	let data = new FormData();
+	data.append('file', file);
+	
+	axios.post("files", data)
+		.then(function (response) {
+			console.log("file uploaded!", data);
+		})
+	.catch(function (error){
+		console.log("failed file upload", error);
+	})
+	
+	
   }
   
   function handleListChange(e) {
@@ -178,6 +200,9 @@ function NewTask() {
                 }}
               />
             </Grid>
+			<br></br>
+		    <input type="file" id="file" onChange={handleInputChange} />
+		    <input type="submit" value="Submit" onClick={handleSubmit}/>
 			<Grid	
 								container
 								direction="column"
