@@ -1,4 +1,5 @@
 import React from "react";
+import axios from 'axios';
 import { useEffect } from "react";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { makeStyles } from "@material-ui/core/styles";
@@ -127,7 +128,8 @@ function DefaultPage(props) {
   const [statusSelect, setStatusSelect] = React.useState("");
   const [responsable, setResponsable] = React.useState("");
   const [date, setDate] = React.useState("");
-
+  let [items, setItems] = React.useState([]);
+ 
   const LoginView = () => <Login />;
 
   let query = useQuery();
@@ -397,11 +399,12 @@ function DefaultPage(props) {
       setOriginalInformation(location.state.detail);
       setReciveInfo(location.state.detail);
       console.log(location.state.detail);
+	  loadDataFromServer();
     } catch (e) {
       console.log("Primer llamado");
     }
   }, [location]);
-  const dynamicList = reciveInfo.map((elemento) => (
+  const dynamicList = items.map((elemento) => (
     <Grid item key="1" xs={12} sm={6} md={4}>
       <Card className={classes.card} variant="outlined">
         <CardHeader
@@ -413,17 +416,20 @@ function DefaultPage(props) {
         />
         <CardContent className={classes.cardContent}>
           <Typography variant="h5" component="h2">
-            {elemento.descripcion}
+            {elemento.description}
           </Typography>
           <Typography variant="body2" component="p">
             <br></br>
-            {elemento.stat} - {elemento.fech}
+            {elemento.status} - {elemento.dueDate}
           </Typography>
           <br></br>
           <Typography variant="h5" component="h2">
-            {elemento.respons}
+            {elemento.responsible.name}
           </Typography>
         </CardContent>
+		<CardContent className={classes.cardContent}>
+			<img src = {elemento.fileUrl} />
+		</CardContent>
       </Card>
     </Grid>
   ));
@@ -450,9 +456,21 @@ function DefaultPage(props) {
 		)
   }
   
+  function loadDataFromServer() {
+	  
+            let that = this;
+    
+            axios.get("http://localhost:8080/api/todo").then(function (response) {
+                console.log("This is my todolist:  ", response.data);
+				setItems(response.data);
+            })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        }
+  
   return (
-    <React.Fragment>
-	  {isFirstgetTask ? getTask() : console.log("")}
+    <React.Fragment>	  
       <h1>{reciveInfo.stat}</h1>
       <CssBaseline />
       <div align="left">

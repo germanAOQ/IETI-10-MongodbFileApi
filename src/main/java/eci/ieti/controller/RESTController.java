@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 @RequestMapping("api")
@@ -49,12 +51,17 @@ public class RESTController {
     @CrossOrigin("*")
     @PostMapping("/files")
     public String handleFileUpload(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) throws IOException {
-        return getFileByName(file.getName()).getBody().getURL().getPath();
+        //System.out.println(file.getInputStream().toString());
+        gridFsTemplate.store(file.getInputStream(), file.getName(), file.getContentType());
+        redirectAttributes.addFlashAttribute("message", "You successfully uploaded " + file.getOriginalFilename() + "!");
+        return "http://localhost:8080/api/files/"+file.getName();
+        //return getFileByName(file.getName()).getBody().getURL().getPath();
     }
 
     @CrossOrigin("*")
     @PostMapping("/todo")
     public Todo createTodo(@RequestBody Todo todo) {
+        System.out.println(todo.toString());
         todoRepository.save(todo);
         return todo;
     }

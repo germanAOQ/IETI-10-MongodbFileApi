@@ -38,6 +38,7 @@ function NewTask() {
   const [fecha, setFecha] = React.useState("");
   const [open, setOpen] = React.useState(false);
   const [file, setFile] = React.useState(0);
+  let [stringFile, setStringFile] = React.useState([]);
   
   const [elementos, setElementos] = React.useState([]);
 	
@@ -73,21 +74,48 @@ function NewTask() {
   function handleSubmit() {
     alert('A name was submitted');
 	let data = new FormData();
-	data.append('file', file);
+	data.append("file", file);
 	
-	axios.post("files", data)
-		.then(function (response) {
-			console.log("file uploaded!", data);
+	
+	//Save image
+	axios.post('http://localhost:8080/api/files', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+    }).then(function (response){
+		setStringFile(response.data);
+		console.log(stringFile);
+	}).catch(function (error){
+		console.log(error);
+	})
+	
+	//Save Todo
+	let respuesta = {
+	"description": description,
+    "priority": 5,
+    "dueDate": fecha,
+    "responsible": {"name": responsable, "email":responsable+"@mail.com"},
+    "status": status, 
+    "fileUrl": stringFile
+	}
+	
+	const options = {
+		method: "POST",
+		headers: { 'Content-Type' : 'application/json'},
+		data: JSON.stringify(respuesta),
+		url: "http://localhost:8080/api/todo"
+	};
+	axios(options).then(function (response) {
+			console.log("file uploaded!", response);
 		})
 	.catch(function (error){
 		console.log("failed file upload", error);
-	})
-	
+	});
 	
   }
   
   function handleListChange(e) {
-	  lista.push({descripcion:description, respons:responsable, stat:status, fech:fecha	})
+	  lista.push({descripcion:description, respons:responsable, stat:status, fech:fecha, imageURL: stringFile})
 	  const respuesta = {
 		"body": {
 		"title": description,
